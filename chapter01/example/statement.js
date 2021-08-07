@@ -8,16 +8,18 @@ function statement(invoice, plays) {
 
   for (let perf of invoice.performances) {
     volumeCredits += volumCreditsFor(perf);
-    result += `  ${playFor(perf).name}: ${usd(amountFor(perf) / 100)}  (${perf.audience}석)\n`;
+    result += `  ${playFor(perf).name}: ${usd(amountFor(perf))}  (${perf.audience}석)\n`;
     totalAmount += amountFor(perf);
   }
-  result += `총액: ${usd(totalAmount / 100)}\n`;
+  result += `총액: ${usd(totalAmount)}\n`;
   result += `적립 포인트: ${volumeCredits}점\n`;
   return result;
 }
 
 function usd(number) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: number }).format;
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(
+    number / 100
+  );
 }
 
 function volumCreditsFor(performance) {
