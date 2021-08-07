@@ -9,12 +9,12 @@ function statement(invoice, plays) {
     .format;
   for (let perf of invoice.performances) {
     //함수로 추출하고 인라인으로 적용할 예정(perf와 plays를 참조하여 나온 결과로 매개변수를 따로 둘필요없다.)
-    let thisAmount = amountFor(perf, playFor(perf));
+    let thisAmount = amountFor(perf);
 
     volumeCredits += Math.max(perf.audience - 30, 0);
-    if ('comedy' === play.type) volumeCredits += Math.floor(perf.audience / 5);
+    if ('comedy' === playFor(perf).type) volumeCredits += Math.floor(perf.audience / 5);
 
-    result += `  ${play.name}: ${format(thisAmount / 100)}  (${perf.audience}석)\n`;
+    result += `  ${playFor(perf).name}: ${format(thisAmount / 100)}  (${perf.audience}석)\n`;
     totalAmount += thisAmount;
   }
   result += `총액: ${format(totalAmount / 100)}\n`;
@@ -26,9 +26,9 @@ function playFor(performance) {
   return plays[performance.playID];
 }
 
-function amountFor(performance, play) {
+function amountFor(performance) {
   let result = 0;
-  switch (play.type) {
+  switch (playFor(performance).type) {
     case 'tragedy':
       result = 40000;
       if (performance.audience > 30) {
@@ -43,7 +43,7 @@ function amountFor(performance, play) {
       result += 300 * performance.audience;
       break;
     default:
-      throw new Error(`알 수 없는 장르: ${play.type}`);
+      throw new Error(`알 수 없는 장르: ${playFor(performance).type}`);
   }
   return result;
 }
