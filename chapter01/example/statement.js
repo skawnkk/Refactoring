@@ -12,19 +12,19 @@ function statement(invoice, plays) {
 }
 
 function totalAmount() {
-  let totalAmount = 0;
+  let result = 0;
   for (let perf of invoice.performances) {
-    totalAmount += amountFor(perf);
+    result += amountFor(perf);
   }
-  return totalAmount;
+  return result;
 }
 
 function totalVolumeCredits() {
-  let volumeCredits = 0; //포인트(다음 공연 의뢰시 할인)
+  let result = 0; //포인트(다음 공연 의뢰시 할인)
   for (let perf of invoice.performances) {
-    volumeCredits += volumCreditsFor(perf);
+    result += volumCreditsFor(perf);
   }
-  return volumeCredits;
+  return result;
 }
 
 function usd(number) {
