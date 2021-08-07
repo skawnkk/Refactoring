@@ -5,8 +5,7 @@ function statement(invoice, plays) {
   let totalAmount = 0;
   let volumeCredits = 0; //포인트(다음 공연 의뢰시 할인)
   let result = `청구내역 (고객명: ${invoice.customer})\n`;
-  const format = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })
-    .format;
+
   for (let perf of invoice.performances) {
     volumeCredits += volumCreditsFor(perf);
     result += `  ${playFor(perf).name}: ${format(amountFor(perf) / 100)}  (${perf.audience}석)\n`;
@@ -15,6 +14,10 @@ function statement(invoice, plays) {
   result += `총액: ${format(totalAmount / 100)}\n`;
   result += `적립 포인트: ${volumeCredits}점\n`;
   return result;
+}
+
+function format(number) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: number }).format;
 }
 
 function volumCreditsFor(performance) {
