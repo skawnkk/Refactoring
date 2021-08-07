@@ -8,17 +8,19 @@ function statement(invoice, plays) {
   const format = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })
     .format;
   for (let perf of invoice.performances) {
-    //함수로 추출하고 인라인으로 적용할 예정(perf와 plays를 참조하여 나온 결과로 매개변수를 따로 둘필요없다.)
-    let thisAmount = amountFor(perf);
-
-    volumeCredits += Math.max(perf.audience - 30, 0);
-    if ('comedy' === playFor(perf).type) volumeCredits += Math.floor(perf.audience / 5);
-
-    result += `  ${playFor(perf).name}: ${format(thisAmount / 100)}  (${perf.audience}석)\n`;
-    totalAmount += thisAmount;
+    volumeCredits += volumCreditsFor(perf);
+    result += `  ${playFor(perf).name}: ${format(amountFor(perf) / 100)}  (${perf.audience}석)\n`;
+    totalAmount += amountFor(perf);
   }
   result += `총액: ${format(totalAmount / 100)}\n`;
   result += `적립 포인트: ${volumeCredits}점\n`;
+  return result;
+}
+
+function volumCreditsFor(performance) {
+  let result = 0;
+  result += Math.max(performance.audience - 30, 0);
+  if ('comedy' === playFor(performance).type) result += Math.floor(performance.audience / 5);
   return result;
 }
 
