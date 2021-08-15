@@ -1,42 +1,47 @@
 import { plays } from './plays.js';
 import { invoice } from './invoice.js';
+import createStatementData from './createStatementData.js';
 
 function statement(invoice, plays) {
-  let totalAmount = 0;
-  let volumeCredits = 0; //포인트(다음 공연 의뢰시 할인)
-  let result = `청구내역 (고객명: ${invoice.customer})\n`;
-  const format = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 })
-    .format;
-  for (let perf of invoice.performances) {
-    const play = plays[perf.playID];
-    let thisAmount = 0;
-    switch (play.type) {
-      case 'tragedy':
-        thisAmount = 40000;
-        if (perf.audience > 30) {
-          thisAmount += 1000 * (perf.audience - 30);
-        }
-        break;
-      case 'comedy':
-        thisAmount = 30000;
-        if (perf.audience > 20) {
-          thisAmount += 10000 + 500 * (perf.audience - 20);
-        }
-        thisAmount += 300 * perf.audience;
-        break;
-      default:
-        throw new Error(`알 수 없는 장르: ${play.type}`);
-    }
+  return renderPlainText(createStatementData(invoice, plays));
+}
 
-    volumeCredits += Math.max(perf.audience - 30, 0);
-    if ('comedy' === play.type) volumeCredits += Math.floor(perf.audience / 5);
-
-    result += `  ${play.name}: ${format(thisAmount / 100)}  (${perf.audience}석)\n`;
-    totalAmount += thisAmount;
+function renderPlainText(data) {
+  let result = `청구내역 (고객명: ${data.customer})\n`;
+  for (let perf of data.performances) {
+    result += `  ${perf.play.name}: ${usd(perf.amount)}  (${
+      perf.audience
+    }석)\n`;
   }
-  result += `총액: ${format(totalAmount / 100)}\n`;
-  result += `적립 포인트: ${volumeCredits}점\n`;
+  result += `총액: ${usd(data.totalAmount)}\n`;
+  result += `적립 포인트: ${data.totalVolumeCredits}점\n`;
   return result;
 }
 
+function htmlStatement(invoice, plays) {
+  return renderHtml(createStatementData(invoice, plays));
+}
+function renderHtml(data) {
+  let result = `<h1>청구내역 (고객명: ${data.customer})</h1>\n`;
+  result += `<table>\n`;
+  result += `<tr><th>연극</th><th>좌석 수</th><th>금액</th></tr>`;
+
+  for (let perf of data.performances) {
+    result += ` <tr><td>${perf.play.name}</td><td>(${perf.audience}석)</td>`;
+    result += ` <td>${usd(perf.amount)}</td></tr>\n`;
+  }
+  result += '</table>\n';
+  result += `<p>총액: <em>${usd(data.totalAmount)}</em></p>\n`;
+  result += `<p>적립 포인트: <em>${data.totalVolumeCredits}</em>점</p>\n`;
+  return result;
+}
+
+function usd(number) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+  }).format(number / 100);
+}
 console.log(statement(invoice, plays));
+document.querySelector('#board').innerHTML = htmlStatement(invoice, plays);
